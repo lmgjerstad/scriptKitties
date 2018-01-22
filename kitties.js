@@ -274,27 +274,22 @@ spaceBuildings = {
   },
 }
 
-var resourceLimits = {
-  furs : 1,
-}
-
-var resources = [
-          ["catnip", "wood", 50],
-            ["wood", "beam", 175],
-          ["minerals", "slab", 250],
-            ["coal", "steel", 100],
-          ["iron", "plate", 125],
-            ["oil", "kerosene", 7500],
-            ["uranium", "thorium", 250],
-      ["unobtainium", "eludium", 1000]
-                ];
+var primaryResources = [
+  "steel",
+  "plate",
+  "slab",
+  "beam"
+];
 
 var secondaryResources = [
-      ["beam", "scaffold", 50],
-            ["steel", "alloy", 75],
-      ["steel", "gear", 15],
-      ["slab", "concrate", 2500]
-      ]
+  "parchment",
+  "manuscript",
+  "compedium"
+]
+
+var resourceTargets = {
+  furs : 500,
+}
 
 var htmlMenuAddition = '<div id="farRightColumn" class="column">' +
 
@@ -515,7 +510,7 @@ function autoObserve() {
 function autoPraise(){
   if (autoCheck['praise'] && gamePage.bld.getBuildingExt('temple').meta.val > 0) {
     var faith = gamePage.resPool.get('faith');
-    if (faith.value > faith.maxValue * 0.95) {
+    if (faith.value > faith.maxValue * 0.99) {
       gamePage.religion.praise();
     }
   }
@@ -535,8 +530,11 @@ function autoBuild() {
             try {
               if (btn[i].model.metadata.name == name) {
                 btn[i].controller.buyItem(btn[i].model, {}, function(result) {
-                  if (result) {btn[i].update();}
-                  });
+                  if (result) {
+                    btn[i].update();
+                    console.log('Purchased ' + name);
+                  }
+                });
               }
             } catch(err) {
               console.log(err);
@@ -615,13 +613,13 @@ function autoTrade() {
     var unoRes = gamePage.resPool.get('unobtainium');
     var goldResource = gamePage.resPool.get('gold');
     var goldOneTwenty = gamePage.getResourcePerTick('gold') * 200;
-      if (goldResource.value > (goldResource.maxValue - goldOneTwenty)) {
+      if (goldResource.value / goldResource.maxValue > 0.99) {
         if (unoRes.value > 5000  && gamePage.diplomacy.get('leviathans').unlocked && gamePage.diplomacy.get('leviathans').duration != 0) {
           gamePage.diplomacy.tradeAll(game.diplomacy.get("leviathans"));
         } else if (titRes.value < (titRes.maxValue * 0.9)  && gamePage.diplomacy.get('zebras').unlocked) {
-          gamePage.diplomacy.tradeAll(game.diplomacy.get("zebras"), (goldOneTwenty / 15));
+          gamePage.diplomacy.tradeAll(game.diplomacy.get("zebras"));
         } else if (gamePage.diplomacy.get('dragons').unlocked) {
-          gamePage.diplomacy.tradeAll(game.diplomacy.get("dragons"), (goldOneTwenty / 15));
+          gamePage.diplomacy.tradeAll(game.diplomacy.get("dragons"));
         }
       }
   }
@@ -631,7 +629,7 @@ function autoTrade() {
 function autoHunt() {
   if (autoCheck['hunt']) {
     var catpower = gamePage.resPool.get('manpower');
-    if (catpower.value > catpower.maxValue * 0.95) {
+    if (catpower.value > catpower.maxValue * 0.99) {
       gamePage.village.huntAll();
     }
   }
@@ -640,26 +638,41 @@ function autoHunt() {
     // Craft primary resources automatically
 function autoCraft() {
   if (autoCheck['craft']) {
-    var crafts = gamePage.workshop.crafts;
-    for (var i in crafts) {
-      var can = true;
-      var buy = false;
-      var prices = crafts[i].prices;
+    for (var i in primaryResources) {
+      var name = primaryResources[i];
+      var craft = gamePage.workshop.getCraft(name);
+      var buy = false;;
+      var prices = craft.prices;
       for (var j in prices) {
         var curRes = gamePage.resPool.get(prices[j].name);
         if (curRes.value < prices[j].val) {
-          can = false;
+          buy = 0;
           break;
         }
-        if (curRes.maxValue > 0 && (curRes.value / curRes.maxValue > 0.95)) {
-          buy = true;
-        }
-        if (resourceLimits.hasOwnProperty(prices[j].name) && (curRes.value > (resourceLimits[prices[j].name] + prices[j].val))) {
+        if (curRes.maxValue > 0 && (curRes.value / curRes.maxValue) > 0.99) {
           buy = true;
         }
       }
-      if (can && buy) {
-        gamePage.craft(crafts[i].name, 1);
+      if (buy) {
+        gamePage.craft(name, 1);
+      }
+    }
+    for (var i in secondaryResources) {
+      var name = secondaryResources[i];
+      var craft = gamePage.workshop.getCraft(name);
+      var buy = 100000;
+      var prices = craft.prices;
+      for (var j in prices) {
+        var curRes = gamePage.resPool.get(prices[j].name);
+        if (curRes.value < prices[j].val) {
+          buy = 0;
+          break;
+        }
+        var tgt = resourceTargets.hasOwnProperty(prices[j].name) ? resourceTargets[prices[j].name] : 0;
+        buy = Math.min(buy, (curRes.value - tgt) / prices[j].val);
+      }
+      if (buy > 0) {
+        gamePage.craft(name, Math.floor(buy));
       }
     }
   }
