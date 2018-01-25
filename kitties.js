@@ -168,7 +168,7 @@ var buildings = {
     name : 'Other',
     buildings : {
       amphitheatre : {
-        name : 'Amphitheatre/Hydro',
+        name : 'Amphitheatre/Broadcast Tower',
         buy : false,
       },
       tradepost : {
@@ -197,10 +197,6 @@ var buildings = {
       },
     },
   },
-}
-
-buildingCategories = {
-  hut : 'Kitten Housing',
 }
 
 spaceBuildings = {
@@ -274,21 +270,72 @@ spaceBuildings = {
   },
 }
 
-var primaryResources = [
-  "steel",
-  "plate",
-  "slab",
-  "beam"
-];
-
-var secondaryResources = [
-  "parchment",
-  "manuscript",
-  "compedium"
-]
-
-var resourceTargets = {
-  furs : 500,
+var crafts = {
+  wood : {
+    primary : true,
+    reserve : 0,
+  },
+  plate : {
+    primary : true,
+    reserve : 0,
+  },
+  steel : {
+    primary : true,
+    reserve : 0,
+    restrict : 'coal',
+  },
+  slab : {
+    primary : true,
+    reserve : 0,
+  },
+  beam : {
+    primary : true,
+    reserve : 500,
+  },
+  kerosene : {
+    primary : true,
+    reserve : 0,
+  },
+  furs : {
+    reserve : 500,
+    goal : 0, // Don't actually craft this
+  },
+  starchart : {
+    reserve : 500,
+    goal : 0,
+  },
+  science : {
+    reserve : 0,
+    goal : 0,
+  },
+  parchment : {
+    reserve : 0,
+    goal : 1000,
+  },
+  manuscript : {
+    reserve : 200,
+    goal : 1000,
+  },
+  compedium : {
+    reserve : 100,
+    goal : 1000,
+  },
+  blueprint : {
+    reserve : 0,
+    goal : 500,
+  },
+  scaffold : {
+    reserve : 150,
+    goal : 300,
+  },
+  ship : {
+    reserve : 0,
+    goal : 1000,
+  },
+  alloy : {
+    reserve : 0,
+    goal : 100,
+  },
 }
 
 var htmlMenuAddition = '<div id="farRightColumn" class="column">' +
@@ -618,8 +665,8 @@ function autoTrade() {
           gamePage.diplomacy.tradeAll(game.diplomacy.get("leviathans"));
         } else if (titRes.value < (titRes.maxValue * 0.9)  && gamePage.diplomacy.get('zebras').unlocked) {
           gamePage.diplomacy.tradeAll(game.diplomacy.get("zebras"));
-        } else if (gamePage.diplomacy.get('dragons').unlocked) {
-          gamePage.diplomacy.tradeAll(game.diplomacy.get("dragons"));
+//        } else if (gamePage.diplomacy.get('dragons').unlocked) {
+//          gamePage.diplomacy.tradeAll(game.diplomacy.get("dragons"));
         }
       }
   }
@@ -638,38 +685,42 @@ function autoHunt() {
     // Craft primary resources automatically
 function autoCraft() {
   if (autoCheck['craft']) {
-    for (var i in primaryResources) {
-      var name = primaryResources[i];
-      var craft = gamePage.workshop.getCraft(name);
-      var buy = false;;
-      var prices = craft.prices;
-      for (var j in prices) {
-        var curRes = gamePage.resPool.get(prices[j].name);
-        if (curRes.value < prices[j].val) {
-          buy = 0;
-          break;
-        }
-        if (curRes.maxValue > 0 && (curRes.value / curRes.maxValue) > 0.99) {
-          buy = true;
-        }
+    for (var name in crafts) {
+      if (crafts[name].goal === 0) {
+        continue;
       }
-      if (buy) {
-        gamePage.craft(name, 1);
-      }
-    }
-    for (var i in secondaryResources) {
-      var name = secondaryResources[i];
       var craft = gamePage.workshop.getCraft(name);
-      var buy = 100000;
       var prices = craft.prices;
-      for (var j in prices) {
-        var curRes = gamePage.resPool.get(prices[j].name);
-        if (curRes.value < prices[j].val) {
-          buy = 0;
-          break;
+      var buy = 0;
+      if (crafts[name].primary) {
+        for (var i in prices) {
+          var resName = prices[i].name
+          var curRes = gamePage.resPool.get(resName);
+          if (curRes.value < prices[i].val) {
+            buy = 0;
+            break;
+          }
+          if (crafts[name].restrict && crafts[name].restrict != resName) {
+            continue;
+          }
+          if (curRes.maxValue > 0 && (curRes.value / curRes.maxValue) > 0.99) {
+            buy = 1;
+          }
         }
-        var tgt = resourceTargets.hasOwnProperty(prices[j].name) ? resourceTargets[prices[j].name] : 0;
-        buy = Math.min(buy, (curRes.value - tgt) / prices[j].val);
+      } else {
+        var goal = crafts[name].goal;
+        var current = gamePage.resPool.get(name).value;
+        var needed = goal - current;
+        var ratio = game.getResCraftRatio({name: name}) + 1;
+        buy = needed / ratio;
+        for (var i in prices) {
+          var resName = prices[i].name;
+          var curRes = gamePage.resPool.get(resName);
+          var reserved = crafts[resName] ? crafts[resName].reserve : 0;
+          var available = curRes.value - reserved;
+          var maxSpend = Math.floor(available / prices[i].val);
+          buy = Math.min(buy, maxSpend);
+        }
       }
       if (buy > 0) {
         gamePage.craft(name, Math.floor(buy));
