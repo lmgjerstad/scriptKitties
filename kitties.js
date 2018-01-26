@@ -712,7 +712,7 @@ function autoCraft() {
         var current = gamePage.resPool.get(name).value;
         var needed = goal - current;
         var ratio = game.getResCraftRatio({name: name}) + 1;
-        buy = needed / ratio;
+        buy = Math.ceil(needed / ratio);
         for (var i in prices) {
           var resName = prices[i].name;
           var curRes = gamePage.resPool.get(resName);
