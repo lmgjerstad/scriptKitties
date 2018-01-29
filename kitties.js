@@ -10,7 +10,8 @@ var autoCheck = {
   upgrade: false,
   party: false,
   assign: false,
-  energy: false};
+  energy: false
+};
 
  // These will allow quick selection of the buildings which consume energy
 var bldSmelter = gamePage.bld.buildingsData[15];
@@ -23,7 +24,6 @@ var bldAccelerator = gamePage.bld.buildingsData[24];
  // These are the assorted variables
 var proVar = gamePage.resPool.energyProd;
 var conVar = gamePage.resPool.energyCons;
-var tickDownCounter = 1;
 var deadScript = "Script is dead";
 var furDerVal = 3;
 var autoChoice = "farmer";
@@ -39,15 +39,15 @@ var buildings = {
     buildings : {
       hut : {
         name : 'Hut',
-        buy : false,
+        buy : 0,
       },
       logHouse : {
         name : 'Log House',
-        buy : false,
+        buy : 0,
       },
       mansion : {
         name : 'Mansion',
-        buy : false,
+        buy : 0,
       },
     }
   },
@@ -56,11 +56,11 @@ var buildings = {
     buildings : {
       workshop : {
         name : 'Workshop',
-        buy : false,
+        buy : 0,
       },
       factory : {
         name : 'Factory',
-        buy : false,
+        buy : 0,
       },
     },
   },
@@ -69,31 +69,31 @@ var buildings = {
     buildings : {
       field : {
         name : 'Catnip Field',
-        buy : false,
+        buy : 0,
       },
       pasture : {
         name : 'Pasture/Solar',
-        buy : false,
+        buy : 0,
       },
       mine : {
         name : 'Mine',
-        buy : false,
+        buy : 0,
       },
       lumberMill : {
         name : 'Lumber Mill',
-        buy : false,
+        buy : 0,
       },
       aqueduct : {
         name : 'Aquaduct/Hydro',
-        buy : false,
+        buy : 0,
       },
       oilWell : {
         name : 'Oil Well',
-        buy : false,
+        buy : 0,
       },
       quarry : {
         name : 'Quarry',
-        buy : false,
+        buy : 0,
       },
     },
   },
@@ -102,31 +102,31 @@ var buildings = {
     buildings : {
       smelter : {
         name : 'Smelter',
-        buy : false,
+        buy : 0,
       },
       biolab : {
         name : 'BioLab',
-        buy : false,
+        buy : 0,
       },
       calciner : {
         name : 'Calciner',
-        buy : false,
+        buy : 0,
       },
       reactor : {
         name : 'Reactor',
-        buy : false,
+        buy : 0,
       },
       accelerator : {
         name : 'Accelerator',
-        buy : false,
+        buy : 0,
       },
       steamworks : {
         name : 'Steamworks',
-        buy : false,
+        buy : 0,
       },
       magneto : {
         name : 'Magneto',
-        buy : false,
+        buy : 0,
       },
     },
   },
@@ -135,15 +135,15 @@ var buildings = {
     buildings : {
       library : {
         name : 'Library',
-        buy : false,
+        buy : 0,
       },
       academy : {
         name : 'Academy',
-        buy : false,
+        buy : 0,
       },
       observatory : {
         name : 'Observatory',
-        buy : false,
+        buy : 0,
       },
     },
   },
@@ -152,15 +152,15 @@ var buildings = {
     buildings : {
       barn : {
         name : 'Barn',
-        buy : false,
+        buy : 0,
       },
       harbor : {
         name : 'Harbor',
-        buy : false,
+        buy : 0,
       },
       warehouse : {
         name : 'Warehouse',
-        buy : false,
+        buy : 0,
       },
     },
   },
@@ -169,31 +169,31 @@ var buildings = {
     buildings : {
       amphitheatre : {
         name : 'Amphitheatre/Broadcast Tower',
-        buy : false,
+        buy : 0,
       },
       tradepost : {
         name : 'Tradepost',
-        buy : false,
+        buy : 0,
       },
       chapel : {
         name : 'Chapel',
-        buy : false,
+        buy : 0,
       },
       temple : {
         name : 'Temple',
-        buy : false,
+        buy : 0,
       },
       mint : {
         name : 'Mint',
-        buy : false,
+        buy : 0,
       },
       ziggurat : {
         name : 'Ziggurat',
-        buy : false,
+        buy : 0,
       },
       unicornPasture : {
         name : 'Unicorn Pasture',
-        buy : false,
+        buy : 0,
       },
     },
   },
@@ -273,69 +273,77 @@ spaceBuildings = {
 var crafts = {
   wood : {
     primary : true,
-    reserve : 0,
+    reserve : 0
   },
   plate : {
     primary : true,
-    reserve : 0,
+    reserve : 0
   },
   steel : {
     primary : true,
     reserve : 0,
-    restrict : 'coal',
+    restrict : "coal"
   },
   slab : {
     primary : true,
-    reserve : 0,
+    reserve : 0
   },
   beam : {
     primary : true,
-    reserve : 500,
+    reserve : 0
   },
   kerosene : {
     primary : true,
-    reserve : 0,
+    reserve : 0
   },
   furs : {
-    reserve : 500,
-    goal : 0, // Don't actually craft this
+    reserve : 0,
+    goal : 0
   },
   starchart : {
-    reserve : 500,
-    goal : 0,
+    reserve : 0,
+    goal : 0
   },
   science : {
     reserve : 0,
-    goal : 0,
+    goal : 0
   },
   parchment : {
     reserve : 0,
-    goal : 1000,
+    goal : 1000
   },
   manuscript : {
-    reserve : 200,
-    goal : 1000,
+    reserve : 0,
+    goal : 0
   },
   compedium : {
-    reserve : 100,
-    goal : 1000,
+    reserve : 0,
+    goal : 0
   },
   blueprint : {
     reserve : 0,
-    goal : 500,
+    goal : 0
   },
   scaffold : {
-    reserve : 150,
-    goal : 300,
+    reserve : 0,
+    goal : 0
   },
   ship : {
     reserve : 0,
-    goal : 1000,
+    goal : 0
   },
   alloy : {
     reserve : 0,
-    goal : 100,
+    goal : 0
   },
+  gear : {
+    reserve : 0,
+    goal : 0
+  },
+  concrate : {
+    reserve : 0,
+    goal : 0
+  }
 }
 
 var htmlMenuAddition = '<div id="farRightColumn" class="column">' +
@@ -386,20 +394,18 @@ var htmlMenuAddition = '<div id="farRightColumn" class="column">' +
 $("#footerLinks").append(htmlMenuAddition);
 
 function renderBuildingSelect() {
-  var bldSelectAddition = '<div id="buildingSelect" style="display:none; margin-top:-400px; width:200px" class="dialog help">' +
+  var bldSelectAddition = '<div id="buildingSelect" style="display:none; margin-top:-400px; width:600px; column-count: 2;" class="dialog help">' +
   '<a href="#" onclick="$(\'#spaceSelect\').toggle(); $(\'#buildingSelect\').hide();" style="position: absolute; top: 10px; left: 15px;">space</a>' +
   '<a href="#" onclick="$(\'#buildingSelect\').hide();" style="position: absolute; top: 10px; right: 15px;">close</a>';
 
   for (var category in buildings) {
     var categoryId = category + 'Checker'
-    bldSelectAddition += ' <br><input type="checkbox" id="' + categoryId +
-        '"><label for="' + categoryId + '"><b>' + buildings[category]['name'] +
+    bldSelectAddition += ' <br><label><b>' + buildings[category].name +
         '</b></label><br>'
-    for (var name in buildings[category]['buildings']) {
-      var bld = buildings[category]['buildings'][name];
-      bldSelectAddition += ' <input type="checkbox" id="auto_' + name +
-          '" class="' + categoryId + '"><label for="auto_' + name + '">' +
-          bld.name + '</label><br>';
+    for (var name in buildings[category].buildings) {
+      var bld = buildings[category].buildings[name];
+      bldSelectAddition += ' <label for="auto_' + name + '">' + bld.name +
+          '</label><input type="text" id="auto_' + name + '" style="width:25px;""><br>';
     }
   }
 
@@ -408,15 +414,12 @@ function renderBuildingSelect() {
   $("#game").append(bldSelectAddition);
 
   for (category in buildings) {
-    document.getElementById(category + 'Checker').onclick = function(category) {
-      return function () { $('.' + category + 'Check').click(); };
-    } (category);
-
     for (var name in buildings[category]['buildings']) {
       var obj = document.getElementById('auto_' + name)
-      obj.onclick = function(category, name, obj) {
+      obj.value = buildings[category].buildings[name].buy;
+      obj.onchange = function(category, name, obj) {
         return function () {
-          buildings[category]['buildings'][name]['buy'] = obj.checked;
+          buildings[category].buildings[name].buy = obj.value;
         }
       }(category, name, obj);
     }
@@ -483,8 +486,6 @@ function renderBuildingSelect() {
 //
 //  $("#game").append(spaceSelectAddition);
 }
-
-renderBuildingSelect();
 
 function clearOptionHelpDiv() {
   $("#optionSelect").hide();
@@ -567,23 +568,27 @@ function autoPraise(){
 function autoBuild() {
   if (autoCheck['build'] && gamePage.ui.activeTabId == 'Bonfire') {
 
-    var btn = gamePage.tabs[0].buttons;
+    var bld2btn = {};
+    var btns = gamePage.tabs[0].buttons;
+    for (i = 2; i < btns.length; ++i) {
+      bld2btn[btns[i].model.metadata.name] = btns[i];
+    }
 
     for (var category in buildings) {
-      for (var name in buildings[category]['buildings']) {
-        if (buildings[category]['buildings'][name]['buy']) {
-          gamePage.bld.getBuildingExt(name).meta.unlocked;
-          for (i = 2 ;i < gamePage.tabs[0].buttons.length; i++) {
+      for (var name in buildings[category].buildings) {
+        var building = gamePage.bld.getBuildingExt(name);
+        var conf = buildings[category].buildings[name];
+        if (building.meta.unlocked && building.meta.val < conf.buy) {
+          if (canAfford(gamePage.bld.getPrices(name))) {
             try {
-              if (btn[i].model.metadata.name == name) {
-                btn[i].controller.buyItem(btn[i].model, {}, function(result) {
-                  if (result) {
-                    btn[i].update();
-                    console.log('Purchased ' + name);
-                  }
-                });
-              }
-            } catch(err) {
+              var btn = bld2btn[name];
+              btn.controller.buyItem(btn.model, {}, function(result) {
+                if (result) {
+                  btn.update();
+                  console.log('Purchased ' + name);
+                }
+              });
+            } catch (err) {
               console.log(err);
             }
           }
@@ -653,6 +658,23 @@ function autoSpace() {
 //}
 }
 
+function autoPromote() {
+  var count = 0;
+  var k = gamePage.village.leader;
+  if (k) {
+    count += gamePage.village.sim.promote(k);
+  }
+  for (var i in gamePage.village.sim.kittens) {
+    var k = gamePage.village.sim.kittens[i];
+    if (k.job == "engineer" && k.rank < 5) {
+      count += gamePage.village.sim.promote(k);
+    }
+  }
+  if (count > 0) {
+    console.log('Promoted ' + count + ' kittens');
+  }
+}
+
     // Trade automatically
 function autoTrade() {
   if (autoCheck['trade']) {
@@ -680,6 +702,17 @@ function autoHunt() {
       gamePage.village.huntAll();
     }
   }
+}
+
+function canAfford(prices, reserve) {
+  var cap = Infinity;
+  for (var i in prices) {
+    var name = prices[i].name;
+    var resource = gamePage.resPool.get(name);
+    var res = reserve ? crafts[name] ? crafts[name].reserve : 0 : 0;
+    cap = Math.min(cap, (resource.value - res) / prices[i].val);
+  }
+  return Math.floor(cap);
 }
 
     // Craft primary resources automatically
@@ -712,79 +745,83 @@ function autoCraft() {
         var current = gamePage.resPool.get(name).value;
         var needed = goal - current;
         var ratio = game.getResCraftRatio({name: name}) + 1;
-        buy = Math.ceil(needed / ratio);
-        for (var i in prices) {
-          var resName = prices[i].name;
-          var curRes = gamePage.resPool.get(resName);
-          var reserved = crafts[resName] ? crafts[resName].reserve : 0;
-          var available = curRes.value - reserved;
-          var maxSpend = Math.floor(available / prices[i].val);
-          buy = Math.min(buy, maxSpend);
-        }
+        buy = Math.min(Math.ceil(needed / ratio), canAfford(prices, true));;
       }
       if (buy > 0) {
-        gamePage.craft(name, Math.floor(buy));
+        gamePage.craft(name, buy);
       }
     }
   }
 }
+
 
     // Auto Research
 function autoResearch() {
-if (autoCheck['science'] && gamePage.libraryTab.visible != false) {
-  var origTab = gamePage.ui.activeTabId;
-  gamePage.ui.activeTabId = 'Science'; gamePage.render();
+  if (autoCheck['science'] && gamePage.libraryTab.visible != false) {
+    var origTab = gamePage.ui.activeTabId;
 
-  var btn = gamePage.tabs[2].buttons;
+    var btn = gamePage.tabs[2].buttons;
 
-   for (var i = 0; i < btn.length; i++) {
-    if (btn[i].model.metadata.unlocked && btn[i].model.metadata.researched != true) {
-      try {
-        btn[i].controller.buyItem(btn[i].model, {}, function(result) {
-          if (result) {btn[i].update();}
-          });
-      } catch(err) {
-      console.log(err);
+    for (var i = 0; i < btn.length; i++) {
+      if (btn[i].model.metadata.unlocked && btn[i].model.metadata.researched != true) {
+        if (canAfford(btn[i].model.metadata.prices)) {
+          if (gamePage.ui.activeTabId != 'Science') {
+            gamePage.ui.activeTabId = 'Science';
+            gamePage.render();
+          }
+          try {
+            btn[i].controller.buyItem(btn[i].model, {}, function(result) {
+              if (result) {
+                btn[i].update();
+                console.log('Purchased ' + btn[i].model.metadata.label);
+              }
+            });
+          } catch(err) {
+            console.log(err);
+          }
+        }
       }
+    }
 
+    if (origTab != gamePage.ui.activeTabId) {
+      gamePage.ui.activeTabId = origTab; gamePage.render();
     }
   }
-
-      if (origTab != gamePage.ui.activeTabId) {
-        gamePage.ui.activeTabId = origTab; gamePage.render();
-      }
-}
-
-
 }
 
     // Auto Workshop upgrade , tab 3
 function autoWorkshop() {
-if (autoCheck['upgrade'] && gamePage.workshopTab.visible != false) {
+  if (autoCheck['upgrade'] && gamePage.workshopTab.visible != false) {
+    var origTab = gamePage.ui.activeTabId;
 
-  var origTab = gamePage.ui.activeTabId;
-  gamePage.ui.activeTabId = 'Workshop'; gamePage.render();
+    var btn = gamePage.tabs[3].buttons;
 
-  var btn = gamePage.tabs[3].buttons;
-
-   for (var i = 0; i < btn.length; i++) {
-    if (btn[i].model.metadata.unlocked && btn[i].model.metadata.researched != true) {
-      try {
-        btn[i].controller.buyItem(btn[i].model, {}, function(result) {
-          if (result) {btn[i].update();}
-          });
-      } catch(err) {
-      console.log(err);
+    for (var i = 0; i < btn.length; i++) {
+      if (btn[i].model.metadata.unlocked && btn[i].model.metadata.researched != true) {
+        if (canAfford(btn[i].model.metadata.prices)) {
+          if (gamePage.ui.activeTabId != 'Workshop') {
+            gamePage.ui.activeTabId = 'Workshop';
+            gamePage.render();
+          }
+          try {
+            btn[i].controller.buyItem(btn[i].model, {}, function(result) {
+              if (result) {
+                btn[i].update();
+                console.log('Purchsed ' + btn[i].model.metadata.label);
+              }
+            });
+          } catch(err) {
+            console.log(err);
+          }
+        }
       }
-
     }
-  }
 
     if (origTab != gamePage.ui.activeTabId) {
-    gamePage.ui.activeTabId = origTab; gamePage.render();
+      gamePage.ui.activeTabId = origTab;
+      gamePage.render();
     }
-}
-
+  }
 }
 
     // Festival automatically
@@ -807,7 +844,7 @@ function autoParty() {
 
     // Auto assign new kittens to selected job
 function autoAssign() {
-  if (autoCheck['assign'] && gamePage.village.getJob(autoChoice).unlocked) {
+  if (autoCheck['assign'] && gamePage.village.getJob(autoChoice).unlocked && gamePage.village.getFreeKittens() > 0) {
     gamePage.village.assignJob(gamePage.village.getJob(autoChoice));
   }
 }
@@ -861,13 +898,30 @@ function autoNip() {
   }
 }
 
+function loadConfigs() {
+  if (localStorage.lmg != undefined) {
+    var config = JSON.parse(localStorage.lmg);
+    buldings = config.buildings;
+    crafts = config.crafts;
+  }
+}
+
+function saveConfigs() {
+  var config = {
+    buildings : buildings,
+    crafts : crafts,
+  }
+  localStorage.lmg = JSON.stringify(config);
+}
+
+loadConfigs();
+renderBuildingSelect();
+
     // This function keeps track of the game's ticks and uses math to execute these functions at set times relative to the game.
 clearInterval(runAllAutomation);
 var runAllAutomation = setInterval(function() {
 
   autoNip();
-  autoPraise();
-  autoBuild();
 
   if (gamePage.timer.ticksTotal % 3 === 0) {
     autoObserve();
@@ -878,16 +932,17 @@ var runAllAutomation = setInterval(function() {
   }
 
   if (gamePage.timer.ticksTotal % 10 === 0) {
+    autoBuild();
     autoSpace();
+    autoPraise();
   }
 
   if (gamePage.timer.ticksTotal % 25 === 0) {
-
+    autoPromote();
     autoResearch();
     autoWorkshop();
     autoParty();
     autoTrade();
-
   }
 
 }, 200);
