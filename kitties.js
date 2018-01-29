@@ -275,6 +275,14 @@ var crafts = {
     primary : true,
     reserve : 0
   },
+  beam : {
+    primary : true,
+    reserve : 0
+  },
+  slab : {
+    primary : true,
+    reserve : 0
+  },
   plate : {
     primary : true,
     reserve : 0
@@ -284,29 +292,37 @@ var crafts = {
     reserve : 0,
     restrict : "coal"
   },
-  slab : {
-    primary : true,
-    reserve : 0
+  concrate : {
+    reserve : 0,
+    goal : 0
   },
-  beam : {
+  gear : {
+    reserve : 0,
+    goal : 0
+  },
+  alloy : {
+    reserve : 0,
+    goal : 0
+  },
+  eludium : {
     primary : true,
-    reserve : 0
+    reserve : 0,
+  },
+  scaffold : {
+    reserve : 0,
+    goal : 0
+  },
+  ship : {
+    reserve : 0,
+    goal : 0
+  },
+  tanker : {
+    reserve : 0,
+    goal : 0,
   },
   kerosene : {
     primary : true,
     reserve : 0
-  },
-  furs : {
-    reserve : 0,
-    goal : 0
-  },
-  starchart : {
-    reserve : 0,
-    goal : 0
-  },
-  science : {
-    reserve : 0,
-    goal : 0
   },
   parchment : {
     reserve : 0,
@@ -324,26 +340,26 @@ var crafts = {
     reserve : 0,
     goal : 0
   },
-  scaffold : {
+  thorium : {
+    primary : true,
+    reserve : 0,
+  },
+  megalith : {
+    reserve : 0,
+    goal : 0,
+  },
+  furs : {
     reserve : 0,
     goal : 0
   },
-  ship : {
+  starchart : {
     reserve : 0,
     goal : 0
   },
-  alloy : {
+  science : {
     reserve : 0,
     goal : 0
   },
-  gear : {
-    reserve : 0,
-    goal : 0
-  },
-  concrate : {
-    reserve : 0,
-    goal : 0
-  }
 }
 
 var htmlMenuAddition = '<div id="farRightColumn" class="column">' +
