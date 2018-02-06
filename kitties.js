@@ -151,6 +151,7 @@ assistant.renderBuildingSelect = function() {
  */
 assistant.autoBuild = function() {
   if (this.autoCheck['build'] && gamePage.ui.activeTabId == 'Bonfire') {
+    var origTab = gamePage.ui.activeTabId;
     gamePage.tabs[0].buttons.forEach(b => {
       if (b.model.metadata === undefined) {
         return;
@@ -161,6 +162,10 @@ assistant.autoBuild = function() {
         let [can,crafts] = this.canAfford(gamePage.bld.getPrices(name));
         if (can) {
           crafts.forEach(c => gamePage.craft(c[0], c[1]));
+          if (gamePage.ui.activeTabId != 'Bonfire') {
+            gamePage.ui.activeTabId = 'Bonfire';
+            gamePage.render();
+          }
           try {
             b.controller.updateEnabled(b.model);
             b.controller.buyItem(b.model, {}, r => {
@@ -175,6 +180,11 @@ assistant.autoBuild = function() {
         }
       }
     });
+
+    if (origTab != gamePage.ui.activeTabId) {
+      gamePage.ui.activeTabId = origTab;
+      gamePage.render();
+    }
   }
 };
 
