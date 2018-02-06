@@ -160,11 +160,11 @@ assistant.autoBuild = function() {
       if (building.meta.unlocked && building.meta.val < this.buildings[name]) {
         let [can,crafts] = this.canAfford(gamePage.bld.getPrices(name));
         if (can) {
-          crafts.forEach(c => gamePage.craft(craft[0], craft[1]));
+          crafts.forEach(c => gamePage.craft(c[0], c[1]));
           try {
             b.controller.updateEnabled(b.model);
             b.controller.buyItem(b.model, {}, r => {
-              if (result) {
+              if (r) {
                 b.update();
                 console.log('Purchased ' + name);
               }
@@ -177,6 +177,7 @@ assistant.autoBuild = function() {
     });
   }
 };
+
 /**
  * TODO
  */
