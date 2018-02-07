@@ -27,6 +27,8 @@ assistant.craftCaps = {
 assistant.buildings =
     gamePage.bld.buildingsData.reduce((a, b) => (a[b.name] = 0, a), {});
 
+assistant.spaceBuildings = {};
+
 assistant.craftPrices = gamePage.workshop.crafts.reduce(
     (a, c) =>
         (a[c.name] = c.prices.reduce((a, p) => (a[p.name] = p.val, a), {}), a),
@@ -54,17 +56,22 @@ assistant.craftOrder = (() => {
 })();
 
 assistant.primaryCrafts = {
-  catnip : ["wood"],
-  wood : ["beam"],
-  minerals : ["slab"],
-  iron : ["plate"],
-  coal : ["steel"],
-  titanium : ["alloy"],
-  oil : ["kerosene"],
-  uranium : ["thorium"],
-  unobtanium : ["eludium"],
-  culture : ["manuscript"],
-  science : ["blueprint", "compedium"]
+  catnip : "wood",
+  wood : "beam",
+  minerals : "slab",
+  iron : "plate",
+  coal : "steel",
+  titanium : "alloy",
+  oil : "kerosene",
+  uranium : "thorium",
+  unobtainium : "eludium",
+  culture : "manuscript",
+  science : "compedium"
+};
+
+assistant.crafts = {
+  primary : {},
+  extra : {},
 };
 
 /**
@@ -112,28 +119,54 @@ assistant.canAfford = function(prices) {
   }
 };
 
+assistant.pushButton = function (button, tabName) {
+  if (gamePage.ui.activeTabId != tabName) {
+    gamePage.ui.activeTabId = tabName;
+    gamePage.render();
+  }
+  try {
+    button.controller.updateEnabled(button.model);
+    button.controller.buyItem(button.model, {}, r => {
+      if (r) {
+        button.update();
+        console.log('Purchased ' + button.model.metadata.label);
+      }
+    });
+  } catch(err) {
+    console.log(err);
+  }
+}
+
 /**
  * TODO
  */
 assistant.renderBuildingSelect = function() {
   var bldSelectAddition =
-      '<div id="buildingSelect" style="display:none; margin-top:-400px; width:600px; column-count: 2;" class="dialog help">' +
-      '<a href="#" onclick="$(\'#spaceSelect\').toggle(); $(\'#buildingSelect\').hide();" style="position: absolute; top: 10px; left: 15px;">space</a>' +
-      '<a href="#" onclick="$(\'#buildingSelect\').hide();" style="position: absolute; top: 10px; right: 15px;">close</a> ';
+      '<div id="buildingSelect" style="display:none; margin-top:-400px; width:600px;" class="dialog help">' +
+      '<a href="#" onclick="$(\'#spaceSelect\').toggle(); $(\'#buildingSelect\').hide();" style="float: left;">space</a>' +
+      '<a href="#" onclick="$(\'#craftSelect\').toggle(); $(\'#buildingSelect\').hide();" style="float: left; margin-left: 20 px;">craft</a>' +
+      '<a href="#" onclick="$(\'#buildingSelect\').hide();" style="float: right;">close</a><br>' +
+      '<table width=100%>'
 
+  let count = 0;
   var getName = b =>
       b.label === undefined ? b.stages.map(x => x.label).join('/') : b.label;
-  var bldSelect = b => '<label for="auto_' + b.name + '">' + getName(b) +
-      '</label><input type="text" id="auto_' + b.name +
-      '" style="width:25px;"><br>';
+  var bldSelect = b => {
+      ++count;
+      return ((count % 2 === 1) ? '<tr>' : '') + '<td><input type="text" id="auto_' + b.name +
+      '" style="width:25px;"></td><td><label for="auto_' + b.name + '">' + getName(b) +
+      '</label>' + ((count % 2 === 1) ? '' : '</tr>');
+  };
   var buildings = gamePage.bld.buildingsData.reduce(
-      (a, b) => (a[b.name] = bldSelect(b), a), {});
+      (a, b) => (a[b.name] = b, a), {});
 
   bldSelectAddition += gamePage.bld.buildingGroups.map(
-      g => '<br><label><b>' + g.title + '</b></label><br>' +
-          g.buildings.map(b => buildings[b]).join(' ')).join(' ');
+      g => {
+        count = 0;
+        return '<tr><td colspan=4><label><b>' + g.title + '</b></label></td></tr>' +
+          g.buildings.map(b => bldSelect(buildings[b])).join('') + ((count % 2 == 1) ? '</tr>' : '')}).join('');
 
-  bldSelectAddition += '</div>';
+  bldSelectAddition += '</table></div>';
 
   $('#game').append(bldSelectAddition);
 
@@ -150,7 +183,7 @@ assistant.renderBuildingSelect = function() {
  * TODO
  */
 assistant.autoBuild = function() {
-  if (this.autoCheck['build'] && gamePage.ui.activeTabId == 'Bonfire') {
+  if (this.autoCheck['build']) {
     var origTab = gamePage.ui.activeTabId;
     gamePage.tabs[0].buttons.forEach(b => {
       if (b.model.metadata === undefined) {
@@ -162,21 +195,7 @@ assistant.autoBuild = function() {
         let [can,crafts] = this.canAfford(gamePage.bld.getPrices(name));
         if (can) {
           crafts.forEach(c => gamePage.craft(c[0], c[1]));
-          if (gamePage.ui.activeTabId != 'Bonfire') {
-            gamePage.ui.activeTabId = 'Bonfire';
-            gamePage.render();
-          }
-          try {
-            b.controller.updateEnabled(b.model);
-            b.controller.buyItem(b.model, {}, r => {
-              if (r) {
-                b.update();
-                console.log('Purchased ' + name);
-              }
-            });
-          } catch (err) {
-            console.log(err);
-          }
+          assistant.pushButton(b, 'Bonfire');
         }
       }
     });
@@ -186,6 +205,115 @@ assistant.autoBuild = function() {
       gamePage.render();
     }
   }
+};
+
+assistant.renderSpaceSelect = function() {
+  var bldSelectAddition =
+      '<div id="spaceSelect" style="display:none; margin-top:-400px; width:600px;" class="dialog help">' +
+      '<a href="#" onclick="$(\'#buildingSelect\').toggle(); $(\'#spaceSelect\').hide();" style="float: left;">building</a>' +
+      '<a href="#" onclick="$(\'#craftSelect\').toggle(); $(\'#spaceSelect\').hide();" style="float: left; margin-left: 20px;">space</a>' +
+      '<a href="#" onclick="$(\'#spaceSelect\').hide();" style="float: right;">close</a><br>' +
+      '<table width=100%>'
+
+  let count = 0;
+  var bldSelect = b => {
+      ++count;
+      return ((count % 2 === 1) ? '<tr>' : '') + '<td><input type="text" id="auto_' + b.name +
+      '" style="width:25px;"></td><td><label for="auto_' + b.name + '">' + b.label +
+      '</label>' + ((count % 2 === 1) ? '' : '</tr>');
+  };
+
+  bldSelectAddition += gamePage.space.planets.map(
+      p => {
+        count = 0;
+        return '<tr><td colspan=4><label><b>' + p.label + '</b></label></td></tr>' +
+          p.buildings.map(b => bldSelect(b)).join('')}).join('');
+
+  bldSelectAddition += '</table></div>';
+
+  $('#game').append(bldSelectAddition);
+
+  gamePage.space.spaceBuildingsMap.forEach(n => {
+        let o = document.getElementById('auto_' + n);
+        if (assistant.spaceBuildings[n] === undefined) {
+          assistant.spaceBuildings[n] = 0;
+        }
+        o.value = assistant.spaceBuildings[n];
+        o.onchange = () => assistant.spaceBuildings[n] = o.value;
+  });
+};
+
+assistant.autoSpace = function () {
+  if (autoCheck['build'] && gamePage.tabs[6].visible) {
+    var origTab = gamePage.ui.activeTabId;
+  
+    gamePage.tabs[6].planetPanels.forEach(p => {
+      p.children.forEach(c => {
+        let name = c.model.metadata.name;
+        let bld = gamePage.space.getBuilding(name);
+        if (bld.val < assistant.spaceBuildings[name]) {
+          assistant.pushButton(c, 'space');
+        }
+      });
+    });
+  
+      // Build space programs
+    if (programBuild != false) {
+      gamePage.tabs[6].GCPanel.children.forEach(b => {
+        if (b.model.metadata.unlocked && b.model.on == 0) {
+          assistant.pushButton(b, 'Space');
+        }
+      });
+    }
+  
+    if (origTab != gamePage.ui.activeTabId) {
+      gamePage.ui.activeTabId = origTab;
+      gamePage.render();
+    }
+  }
+}
+
+assistant.renderCraftSelect = function() {
+  var craftSelectAddition =
+      '<div id="craftSelect" style="display:none; margin-top:-400px; width:600px;" class="dialog help">' +
+      '<a href="#" onclick="$(\'#buildingSelect\').toggle(); $(\'#craftSelect\').hide();" style="float: left;">space</a>' +
+      '<a href="#" onclick="$(\'#spaceSelect\').toggle(); $(\'#craftSelect\').hide();" style="float: left; margin-left: 20px;">craft</a>' +
+      '<a href="#" onclick="$(\'#craftSelect\').hide();" style="float: right;">close</a><br>' +
+      '<label><b>Primary Resources</b></label><br>';
+
+  craftSelectAddition += gamePage.resPool.resources.filter(r => assistant.primaryCrafts[r.name] !== undefined).map(r =>
+    '<input type="checkbox" id="autocraft_' + r.name +
+    '"><label for="autocraft_' + r.name + '">' + r.title + ' => ' +
+    gamePage.resPool.get(assistant.primaryCrafts[r.name]).title + '</label><br>').join('');
+
+  let reversePrimary = Object.entries(assistant.primaryCrafts).reduce((a,b) => (a[b[1]] = b[0], a), {});
+  let secondaryCrafts = gamePage.workshop.crafts.filter(c => reversePrimary[c.name] === undefined);
+  craftSelectAddition += '<br><label><b>Additional Resources</b></label><br>';
+  craftSelectAddition += secondaryCrafts.map(c =>
+    '<input type="text" id="autocraft_' + c.name + '" style="width:25px;"><label for="autocraft_' + c.name +
+    '">' + c.label + '</label><br>').join('');
+
+
+  $('#game').append(craftSelectAddition);
+
+  Object.keys(assistant.primaryCrafts).forEach(r => {
+        let o = document.getElementById('autocraft_' + r);
+        if (assistant.crafts.primary[r] === undefined) {
+          assistant.crafts.primary[r] = true;
+        }
+        o.checked = assistant.crafts.primary[r];
+        o.onchange = () => assistant.crafts.primary[r] = o.checked;
+  });
+
+  secondaryCrafts.forEach(c => {
+    let name = c.name;
+    let o = document.getElementById('autocraft_' + name);
+    if (assistant.crafts.extra[name] === undefined) {
+      assistant.crafts.extra[name] = 0;
+    }
+    o.value = assistant.crafts.extra[name];
+    o.onchange = () => assistant.crafts.extra[name] = o.value;
+  });
 };
 
 /**
@@ -205,20 +333,7 @@ assistant.autoResearch = function() {
           for (var i in can[1]) {
             gamePage.craft(can[1][i][0], can[1][i][1]);
           }
-          if (gamePage.ui.activeTabId != 'Science') {
-            gamePage.ui.activeTabId = 'Science';
-            gamePage.render();
-          }
-          try {
-            btn[i].controller.buyItem(btn[i].model, {}, function(result) {
-              if (result) {
-                btn[i].update();
-                console.log('Purchased ' + btn[i].model.metadata.label);
-              }
-            });
-          } catch (err) {
-            console.log(err);
-          }
+          assistant.pushButton(btn[i], 'Science');
         }
       }
     }
@@ -246,20 +361,7 @@ assistant.autoWorkshop = function() {
           for (var i in can[1]) {
             gamePage.craft(can[1][i][0], can[1][i][1]);
           }
-          if (gamePage.ui.activeTabId != 'Workshop') {
-            gamePage.ui.activeTabId = 'Workshop';
-            gamePage.render();
-          }
-          try {
-            btn[i].controller.buyItem(btn[i].model, {}, function(result) {
-              if (result) {
-                btn[i].update();
-                console.log('Purchsed ' + btn[i].model.metadata.label);
-              }
-            });
-          } catch (err) {
-            console.log(err);
-          }
+          assistant.pushButton(btn[i], 'Workshop');
         }
       }
     }
@@ -346,30 +448,36 @@ assistant.autoHunt = function() {
  */
 assistant.autoCraft = function() {
   if (this.autoCheck['craft']) {
-    Object.entries(assistant.primaryCrafts).forEach(c => {
-      let [name, targets] = c;
+    Object.entries(assistant.primaryCrafts).filter(c => assistant.crafts.primary[c[0]]).forEach(c => {
+      let [name, target] = c;
       let r = gamePage.resPool.get(name);
       // Spend enough to cover at lest 10 ticks.
       let spend = r.perTickCached * 10;
       if (r.value >= (r.maxValue - spend)) {
-        for (let i in targets) {
-          let target = targets[i];
-          if (assistant.craftCaps[target] !== undefined) {
-            let have = gamePage.resPool.get(target).value;
-            if (have >= assistant.craftCaps[target]) {
-              continue;
-            }
-          }
-          let prices = assistant.craftPrices[target];
-          let buy = Math.ceil(spend / prices[name]);
-          let [can, reqs] = assistant.canAfford(
-              Object.entries(prices).map(p => ({name: p[0], val: p[1] * buy})));
-          if (can) {
-            reqs.forEach(r => gamePage.craft(r[0], r[1]));
-            gamePage.craft(target, buy);
-            break;
-          }
+        let prices = assistant.craftPrices[target];
+        let buy = Math.ceil(spend / prices[name]);
+        let [can, reqs] = assistant.canAfford(
+            Object.entries(prices).map(p => ({name: p[0], val: p[1] * buy})));
+        if (can) {
+          reqs.forEach(r => gamePage.craft(r[0], r[1]));
+          gamePage.craft(target, buy);
         }
+      }
+    });
+
+    Object.entries(assistant.crafts.extra).forEach(c => {
+      let [name, want] = c;
+      let r = gamePage.resPool.get(name);
+      if (want > r.value) {
+        let craft = gamePage.workshop.getCraft(name);
+        if (!craft.unlocked) {
+          return;
+        }
+        let [can, req] = assistant.canAfford(craft.prices);
+        if (can) {
+          req.forEach(c => gamePage.craft(c[0], c[1]));
+        }
+        gamePage.craft(name, 1);
       }
     });
   }
@@ -538,15 +646,7 @@ var htmlMenuAddition = '<div id="farRightColumn" class="column">' +
     '</select></br>' +
 
     '<button id="autoCraft" style="color:red" onclick="autoSwitch(\'craft\', this)"> Auto Craft </button>' +
-    '<select id="craftFur" size="1" onclick="setFurValue()">' +
-    '<option value="1" selected="selected">Parchment</option>' +
-    '<option value="2">Manuscript</option>' +
-    '<option value="3">Compendium</option>' +
-    '<option value="4">Blueprint</option>' +
-    '</select></br></br>' +
-
-    '<label id="secResLabel"> Secondary Craft % </label>' +
-    '<span id="secResSpan" title="Between 0 and 100"><input id="secResText" type="text" style="width:25px" onchange="secResRatio = this.value" value="30"></span></br></br>' +
+    '</br></br>' +
 
 
     '<button id="autoHunt" style="color:red" onclick="autoSwitch(\'hunt\', this)"> Auto Hunt </button></br>' +
@@ -929,6 +1029,8 @@ function saveConfigs() {
 }
 
 assistant.renderBuildingSelect();
+assistant.renderSpaceSelect();
+assistant.renderCraftSelect();
 $('#footerLinks').append(htmlMenuAddition);
 
 // loadConfigs();
