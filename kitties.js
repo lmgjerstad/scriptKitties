@@ -252,7 +252,11 @@ assistant.autoSpace = function () {
         let name = c.model.metadata.name;
         let bld = gamePage.space.getBuilding(name);
         if (bld.val < assistant.spaceBuildings[name]) {
-          assistant.pushButton(c, 'space');
+          let [can,req] = assistant.canAfford(bld.prices);
+          if (can) {
+            req.forEach(x => gamePage.craft(x[0], x[1]));
+            assistant.pushButton(c, 'space');
+          }
         }
       });
     });
@@ -261,7 +265,11 @@ assistant.autoSpace = function () {
     if (programBuild != false) {
       gamePage.tabs[6].GCPanel.children.forEach(b => {
         if (b.model.metadata.unlocked && b.model.on == 0) {
-          assistant.pushButton(b, 'Space');
+          let [can,req] = assistant.canAfford(b.model.metadata.prices);
+          if (can) {
+            req.forEach(x => gamePage.craft(x[0], x[1]));
+            assistant.pushButton(b, 'Space');
+          }
         }
       });
     }
@@ -483,30 +491,6 @@ assistant.autoCraft = function() {
   }
 };
 
-/**
- * TODO
- */
-assistant.autoShip = function() {
-  if (this.autoCheck['ship']) {
-    if (assistant.craftCaps['ship'] !== undefined) {
-      let have = gamePage.resPool.get('ship').value;
-      if (have >= assistant.craftCaps['ship']) {
-        return;
-      }
-    }
-    var ship = gamePage.workshop.getCraft('ship');
-    if (ship.unlocked) {
-      var can = this.canAfford(ship.prices);
-      if (can[0]) {
-        for (var i in can[1]) {
-          gamePage.craft(can[1][i][0], can[1][i][1]);
-        }
-        gamePage.craft('ship', 1);
-      }
-    }
-  }
-};
-
 // These control the button statuses
 var autoCheck = assistant.autoCheck;
 
@@ -528,99 +512,6 @@ var resList = [];
 var secResRatio = 0;
 var steamOn = 0;
 var programBuild = false;
-
-
-var spaceBuildings = {
-  spaceElevator: {
-    buy: false,
-    panel: 0,
-  },
-  sattelite: {
-    buy: false,
-    panel: 0,
-  },
-  spaceStation: {
-    buy: false,
-    panel: 0,
-  },
-  moonOutpost: {
-    buy: false,
-    panel: 1,
-  },
-  moonBase: {
-    buy: false,
-    panel: 1,
-  },
-  planetCracker: {
-    buy: false,
-    panel: 2,
-  },
-  hydrofracturer: {
-    buy: false,
-    panel: 2,
-  },
-  spiceRefinery: {
-    buy: false,
-    panel: 2,
-  },
-  researchVessel: {
-    buy: false,
-    panel: 3,
-  },
-  orbitalArray: {
-    buy: false,
-    panel: 3,
-  },
-  sunlifter: {
-    buy: false,
-    panel: 4,
-  },
-  containmentChamber: {
-    buy: false,
-    panel: 4,
-  },
-  cryostation: {
-    buy: false,
-    panel: 5,
-  },
-  spaceBeacon: {
-    buy: false,
-    panel: 6,
-  },
-  terraformingStation: {
-    buy: false,
-    panel: 7,
-  },
-  hydroponics: {
-    buy: false,
-    panel: 7,
-  },
-  tectonic: {
-    buy: false,
-    panel: 8,
-  },
-};
-
-var crafts = {
-  wood: {primary: true, reserve: 0},
-  plate: {primary: true, reserve: 0},
-  steel: {primary: true, reserve: 0, restrict: 'coal'},
-  slab: {primary: true, reserve: 0},
-  beam: {primary: true, reserve: 0},
-  kerosene: {primary: true, reserve: 0},
-  furs: {reserve: 0, goal: 0},
-  starchart: {reserve: 0, goal: 0},
-  science: {reserve: 0, goal: 0},
-  parchment: {reserve: 0, goal: 1000},
-  manuscript: {reserve: 0, goal: 0},
-  compedium: {reserve: 0, goal: 0},
-  blueprint: {reserve: 0, goal: 0},
-  scaffold: {reserve: 0, goal: 0},
-  ship: {reserve: 0, goal: 0},
-  alloy: {reserve: 0, goal: 0},
-  gear: {reserve: 0, goal: 0},
-  concrate: {reserve: 0, goal: 0}
-};
 
 var htmlMenuAddition = '<div id="farRightColumn" class="column">' +
 
@@ -774,66 +665,7 @@ function autoBuild() {
  * TODO
  */
 function autoSpace() {
-  // if (autoCheck['build']) {
-  //
-  //  var origTab = gamePage.ui.activeTabId;
-  //
-  //    // Build space buildings
-  //  for (var z = 32; z < buildings.length; z++) {
-  //    if (buildings[z][1] != false) {
-  //
-  //    var spBuild = gamePage.tabs[6].planetPanels[buildings[z][2]].children;
-  //
-  //      try {
-  //        for (i = 0 ;i < spBuild.length; i++) {
-  //          if (spBuild[i].model.metadata.name == buildingsList[z]) {
-  //
-  //            if (gamePage.ui.activeTabId != "Space") {
-  //              gamePage.ui.activeTabId = 'Space'; gamePage.render(); //
-  //              Change the tab so that we can build
-  //            }
-  //
-  //            spBuild[i].controller.buyItem(spBuild[i].model, {},
-  //            function(result) {
-  //              if (result) {spBuild[i].update();}
-  //              });
-  //          }
-  //        }
-  //      } catch(err) {
-  //      console.log(err);
-  //      }
-  //
-  //    }
-  //  }
-  //
-  //    // Build space programs
-  //  if (programBuild != false) {
-  //    var spcProg = gamePage.tabs[6].GCPanel.children;
-  //    for (var i = 0; i < spcProg.length; i++) {
-  //      if (spcProg[i].model.metadata.unlocked && spcProg[i].model.on == 0) {
-  //        try {
-  //
-  //          if (gamePage.ui.activeTabId != "Space") {
-  //          gamePage.ui.activeTabId = 'Space'; gamePage.render(); // Change
-  //          the tab so that we can build
-  //          }
-  //
-  //          spcProg[i].controller.buyItem(spcProg[i].model, {},
-  //          function(result) {
-  //            if (result) {spcProg[i].update();}
-  //            });
-  //        } catch(err) {
-  //        console.log(err);
-  //        }
-  //      }
-  //    }
-  //  }
-  //
-  //        if (origTab != gamePage.ui.activeTabId) {
-  //        gamePage.ui.activeTabId = origTab; gamePage.render();
-  //      }
-  //
-  //}
+  assistant.autoSpace();
 }
 
 /**
@@ -866,43 +698,6 @@ function autoHunt() {
  */
 function autoCraft() {
   assistant.autoCraft();
-  //  if (autoCheck['craft']) {
-  //    for (var name in crafts) {
-  //      if (crafts[name].goal === 0) {
-  //        continue;
-  //      }
-  //      var craft = gamePage.workshop.getCraft(name);
-  //      var prices = craft.prices;
-  //      var buy = 0;
-  //      if (crafts[name].primary) {
-  //        for (var i in prices) {
-  //          var resName = prices[i].name
-  //          var curRes = gamePage.resPool.get(resName);
-  //          if (curRes.value < prices[i].val) {
-  //            buy = 0;
-  //            break;
-  //          }
-  //          if (crafts[name].restrict && crafts[name].restrict != resName) {
-  //            continue;
-  //          }
-  //          if (curRes.maxValue > 0 && (curRes.value / curRes.maxValue) >
-  //          0.99) {
-  //            buy = Math.max(Math.floor(curRes.maxValue / 100 /
-  //            prices[i].val), 1);
-  //          }
-  //        }
-  //      } else {
-  //        var goal = crafts[name].goal;
-  //        var current = gamePage.resPool.get(name).value;
-  //        var needed = goal - current;
-  //        var ratio = game.getResCraftRatio({name: name}) + 1;
-  //        buy = Math.min(Math.ceil(needed / ratio), canAfford(prices, true));;
-  //      }
-  //      if (buy > 0) {
-  //        gamePage.craft(name, buy);
-  //      }
-  //    }
-  //  }
 }
 
 
