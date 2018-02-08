@@ -252,7 +252,7 @@ assistant.autoSpace = function () {
         let name = c.model.metadata.name;
         let bld = gamePage.space.getBuilding(name);
         if (bld.val < assistant.spaceBuildings[name]) {
-          let [can,req] = assistant.canAfford(bld.prices);
+          let [can,req] = assistant.canAfford(c.controller.getPrices(c.model));
           if (can) {
             req.forEach(x => gamePage.craft(x[0], x[1]));
             assistant.pushButton(c, 'space');
@@ -265,7 +265,7 @@ assistant.autoSpace = function () {
     if (programBuild != false) {
       gamePage.tabs[6].GCPanel.children.forEach(b => {
         if (b.model.metadata.unlocked && b.model.on == 0) {
-          let [can,req] = assistant.canAfford(b.model.metadata.prices);
+          let [can,req] = assistant.canAfford(b.controller.getPrices(b.model));
           if (can) {
             req.forEach(x => gamePage.craft(x[0], x[1]));
             assistant.pushButton(b, 'Space');
@@ -857,6 +857,5 @@ runAllAutomation = setInterval(function() {
     autoWorkshop();
     autoParty();
     autoTrade();
-    assistant.autoShip();
   }
 }, 200);
