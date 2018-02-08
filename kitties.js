@@ -90,7 +90,7 @@ assistant.canAfford = function(prices) {
         delete costs[n];
       } else {
         let need = costs[n] - have;
-        let ratio = 1 + gamePage.getResCraftRatio(n);
+        let ratio = 1 + gamePage.getResCraftRatio({name : n});
         let count = Math.ceil(need / ratio);
         Object.entries(assistant.craftPrices[n]).forEach(p => {
           let name = p[0];
